@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
 
-@Module({})
+import { SocketStateService } from './socket-state.service';
+
+@Module({
+  providers: [SocketStateService],
+})
 export class SocketStateModule {}
