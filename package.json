@@ -24,6 +24,7 @@
     "@nestjs/core": "^6.7.2",
     "@nestjs/platform-express": "^6.7.2",
     "@nestjs/platform-socket.io": "^7.2.0",
+    "@nestjs/websockets": "^7.2.0",
     "ioredis": "^4.17.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
