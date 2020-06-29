@@ -5,6 +5,6 @@ import { EventsGateway } from './test.gateway';
 
 @Module({
   imports: [SharedModule],
-  providers: [],
+  providers: [EventsGateway],
 })
 export class AppModule {}
