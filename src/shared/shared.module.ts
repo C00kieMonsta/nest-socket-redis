@@ -4,6 +4,15 @@ import { SocketStateModule } from './socket-state/socket-state.module';
 import { RedisPropagatorModule } from './redis-propagator/redis-propagator.module';
 
 @Module({
-  imports: [RedisModule, SocketStateModule, RedisPropagatorModule]
+  imports: [
+    RedisModule,
+    RedisPropagatorModule,
+    SocketStateModule,
+  ],
+  exports: [
+    RedisModule,
+    RedisPropagatorModule,
+    SocketStateModule,
+  ],
 })
 export class SharedModule {}
