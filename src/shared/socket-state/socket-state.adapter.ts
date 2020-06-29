@@ -1,4 +1,4 @@
-import { WebSocketAdapter } from '@nestjs/common';
+import { WebSocketAdapter, INestApplicationContext } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as socketio from 'socket.io';
 
@@ -11,10 +11,11 @@ export interface AuthenticatedSocket extends socketio.Socket {
 
 export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
   public constructor(
+    private readonly app: INestApplicationContext,
     private readonly socketStateService: SocketStateService,
     private readonly redisPropagatorService: RedisPropagatorService,
   ) {
-    super();
+    super(app);
   }
 
   /**

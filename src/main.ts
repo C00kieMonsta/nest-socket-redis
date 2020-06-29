@@ -11,7 +11,7 @@ async function bootstrap() {
   const socketStateService = app.get(SocketStateService);
   const redisPropagatorService = app.get(RedisPropagatorService);
 
-  app.useWebSocketAdapter(new SocketStateAdapter(socketStateService, redisPropagatorService));
+  app.useWebSocketAdapter(new SocketStateAdapter(app, socketStateService, redisPropagatorService));
 
   await app.listen(3000);
 }
