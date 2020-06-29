@@ -48,12 +48,12 @@ export class SocketStateService {
    * Retrieve sockets of user with userId
    * @param userId id of user
    */
-  public getBySocketsByUserId(userId: string): Socket[] {
+  public getSocketsByUserId(userId: string): Socket[] {
     return this.socketState.get(userId);
   }
 
   /**
-   * Retrieve all sockets
+   * Retrieve all sockets of authenticated users
    */
   public getAllSockets(): Socket[] {
     const all = [];

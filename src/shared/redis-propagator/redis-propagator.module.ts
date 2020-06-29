@@ -6,6 +6,6 @@ import { RedisPropagatorService } from './redis-propagator.service';
  * dispatching events across all instances of the application.
  */
 @Module({
-  providers: [RedisPropagatorService]
+    providers: [RedisPropagatorService],
 })
-export class RedisPropagatorModule {}
+export class RedisPropagatorModule { }

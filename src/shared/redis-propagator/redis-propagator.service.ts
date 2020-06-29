@@ -4,7 +4,11 @@ import { tap } from 'rxjs/operators';
 
 import { SocketStateService } from '../socket-state/socket-state.service';
 import { RedisService } from '../redis/redis.service';
-import { REDIS_SOCKET_EVENT_EMIT_ALL_AUTH, REDIS_SOCKET_EVENT_SEND_NAME, REDIS_SOCKET_EVENT_EMIT_SPECIFIC_AUTH } from '../constants';
+import {
+  REDIS_SOCKET_EVENT_SEND_NAME,
+  REDIS_SOCKET_EVENT_EMIT_ALL_AUTH,
+  REDIS_SOCKET_EVENT_EMIT_SPECIFIC_AUTH,
+} from '../constants';
 
 interface RedisSocketEventEmit {
   readonly event: string;
@@ -31,7 +35,23 @@ export class RedisPropagatorService {
   public constructor(
     private readonly socketStateService: SocketStateService,
     private readonly redisService: RedisService,
-  ) { }
+  ) {
+    // we would also like to listen to the events coming from other instances and act on it
+    this.redisService
+      .fromEvent(REDIS_SOCKET_EVENT_SEND_NAME)
+      .pipe(tap(this.consumeSendEvent))
+      .subscribe();
+
+    this.redisService
+      .fromEvent(REDIS_SOCKET_EVENT_EMIT_ALL_AUTH)
+      .pipe(tap(this.consumeEmitToAllEvent))
+      .subscribe();
+
+    this.redisService
+      .fromEvent(REDIS_SOCKET_EVENT_EMIT_SPECIFIC_AUTH)
+      .pipe(tap(this.consumeEmitToAuthenticatedEvent))
+      .subscribe();
+  }
 
   // this method will be called each time our socket server dispatches an event to the frontend client
   public propagateEvent(eventInfo: RedisSocketEventSend): boolean {
@@ -50,6 +70,49 @@ export class RedisPropagatorService {
   public emitToAll(eventInfo: RedisSocketEventEmit): boolean {
     this.redisService.publish(REDIS_SOCKET_EVENT_EMIT_ALL_AUTH, eventInfo);
     return true;
+  }
+
+  // this method lets us inject a WebSocket server instance into our service
+  public injectSocketServer(server: Server): RedisPropagatorService {
+    this.socketServer = server;
+    return this;
+  }
+
+  /**
+   * Method listening to the Redis event that tells us to send an event to a specified user.
+   * @eventInfo includes following info:
+   * - userId; where to send the event
+   * - event; name of event
+   * - data; what data it should contain
+   * - socketId; which socket the event originated from
+   * Inside the interceptor, we use the propagateEvent method to send the event across all of our instances
+   */
+  private consumeSendEvent = (eventInfo: RedisSocketEventSend): void => {
+    const { userId, event, data, socketId } = eventInfo;
+    return this.socketStateService
+      .getSocketsByUserId(userId)
+      // making sure we are not sending the same event twice by filtering the sockets by the provided socketId
+      .filter((socket) => socket.id !== socketId)
+      // using the emit method of each socket to send the event
+      .forEach((socket) => socket.emit(event, data));
+  }
+
+  /**
+   * This method uses the emit method of the socket server to emit the event to all currently open connections,
+   * authenticated or not
+   */
+  private consumeEmitToAllEvent = (eventInfo: RedisSocketEventEmit): void => {
+    this.socketServer.emit(eventInfo.event, eventInfo.data);
+  }
+
+  /**
+   * After getting all the authenticated sockets we use the emit method of the socket to send the event
+   */
+  private consumeEmitToAuthenticatedEvent = (eventInfo: RedisSocketEventEmit): void => {
+    const { event, data } = eventInfo;
+    return this.socketStateService
+      .getAllSockets()
+      .forEach((socket) => socket.emit(event, data));
   }
 
 }

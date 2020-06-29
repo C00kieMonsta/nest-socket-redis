@@ -1,8 +1,9 @@
-import { INestApplicationContext, WebSocketAdapter, INestApplication } from '@nestjs/common';
+import { WebSocketAdapter } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as socketio from 'socket.io';
 
 import { SocketStateService } from './socket-state.service';
+import { RedisPropagatorService } from '../redis-propagator/redis-propagator.service';
 
 export interface AuthenticatedSocket extends socketio.Socket {
   auth: any;
@@ -11,11 +12,10 @@ export interface AuthenticatedSocket extends socketio.Socket {
 export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
   public constructor(
     private readonly socketStateService: SocketStateService,
+    private readonly redisPropagatorService: RedisPropagatorService,
   ) {
     super();
   }
-
-  private server: socketio.Server;
 
   /**
    * Create an instance of a WebSocket server with port and additional configurations
@@ -23,10 +23,12 @@ export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
    * @param options additional options to cinfigure the instance
    */
   public create(port: number, options: socketio.ServerOptions = {}): socketio.Server {
-    this.server = super.createIOServer(port, options);
+    const server = super.createIOServer(port, options);
+
+    this.redisPropagatorService.injectSocketServer(server);
 
     // set up of a middleware for authentication
-    this.server.use(async (socket: AuthenticatedSocket, next) => {
+    server.use(async (socket: AuthenticatedSocket, next) => {
       const token = socket.handshake.query?.token || socket.handshake.headers?.authorization;
 
       if (!token) {
@@ -51,7 +53,7 @@ export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
       }
     });
 
-    return this.server;
+    return server;
   }
 
   /**
