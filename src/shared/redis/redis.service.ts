@@ -1,8 +1,11 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Observable, Observer } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
-import { REDIS_SUBSCRIBER_CLIENT, REDIS_PUBLISHER_CLIENT } from '../constants';
+import {
+  REDIS_PUBLISHER_CLIENT,
+  REDIS_SUBSCRIBER_CLIENT,
+} from '../constants';
 import { RedisClient } from './redis.providers';
 
 export interface RedisSubscribeMessage {

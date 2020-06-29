@@ -1,12 +1,16 @@
-import { WebSocketAdapter, INestApplicationContext } from '@nestjs/common';
+import { INestApplicationContext, WebSocketAdapter } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import * as socketio from 'socket.io';
 
-import { SocketStateService } from './socket-state.service';
 import { RedisPropagatorService } from '../redis-propagator/redis-propagator.service';
+import { SocketStateService } from './socket-state.service';
+
+interface TokenPayload {
+  readonly userId: string;
+}
 
 export interface AuthenticatedSocket extends socketio.Socket {
-  auth: any;
+  auth: TokenPayload;
 }
 
 export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
@@ -25,7 +29,6 @@ export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
    */
   public create(port: number, options: socketio.ServerOptions = {}): socketio.Server {
     const server = super.createIOServer(port, options);
-
     this.redisPropagatorService.injectSocketServer(server);
 
     // set up of a middleware for authentication
@@ -41,6 +44,7 @@ export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
       }
 
       try {
+
         // **TODO**: Remove mock and Validate user
 
         // fake auth
@@ -68,17 +72,13 @@ export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
         this.socketStateService.addUserToSocket(socket.auth.userId, socket);
 
         // register an event listener for the disconnect event to remove the socket from the state
-        server.on('disconnect', () => {
+        socket.on('disconnect', () => {
           this.socketStateService.removeUserFromSocket(socket.auth.userId, socket);
+          socket.removeAllListeners('disconnect');
         });
       }
 
       callback(socket);
     });
   }
-
-  public close(server: any) {
-    throw new Error('Method not implemented.');
-  }
-
 }

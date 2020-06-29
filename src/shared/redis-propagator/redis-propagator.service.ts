@@ -6,8 +6,8 @@ import { SocketStateService } from '../socket-state/socket-state.service';
 import { RedisService } from '../redis/redis.service';
 import {
   REDIS_SOCKET_EVENT_SEND_NAME,
-  REDIS_SOCKET_EVENT_EMIT_ALL_AUTH,
-  REDIS_SOCKET_EVENT_EMIT_SPECIFIC_AUTH,
+  REDIS_SOCKET_EVENT_EMIT_ALL_NAME,
+  REDIS_SOCKET_EVENT_EMIT_AUTHENTICATED_NAME,
 } from '../constants';
 
 interface RedisSocketEventEmit {
@@ -43,12 +43,12 @@ export class RedisPropagatorService {
       .subscribe();
 
     this.redisService
-      .fromEvent(REDIS_SOCKET_EVENT_EMIT_ALL_AUTH)
+      .fromEvent(REDIS_SOCKET_EVENT_EMIT_ALL_NAME)
       .pipe(tap(this.consumeEmitToAllEvent))
       .subscribe();
 
     this.redisService
-      .fromEvent(REDIS_SOCKET_EVENT_EMIT_SPECIFIC_AUTH)
+      .fromEvent(REDIS_SOCKET_EVENT_EMIT_AUTHENTICATED_NAME)
       .pipe(tap(this.consumeEmitToAuthenticatedEvent))
       .subscribe();
   }
@@ -63,12 +63,12 @@ export class RedisPropagatorService {
   }
 
   public emitToAuthenticated(eventInfo: RedisSocketEventEmit): boolean {
-    this.redisService.publish(REDIS_SOCKET_EVENT_EMIT_SPECIFIC_AUTH, eventInfo);
+    this.redisService.publish(REDIS_SOCKET_EVENT_EMIT_AUTHENTICATED_NAME, eventInfo);
     return true;
   }
 
   public emitToAll(eventInfo: RedisSocketEventEmit): boolean {
-    this.redisService.publish(REDIS_SOCKET_EVENT_EMIT_ALL_AUTH, eventInfo);
+    this.redisService.publish(REDIS_SOCKET_EVENT_EMIT_ALL_NAME, eventInfo);
     return true;
   }
 
