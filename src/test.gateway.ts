@@ -1,14 +1,14 @@
 import { UseInterceptors, Logger } from '@nestjs/common';
-import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 
 import { RedisPropagatorInterceptor } from './shared/redis-propagator/redis-propagator.interceptor';
 
+@WebSocketGateway({ namespace: '/test' })
 @UseInterceptors(RedisPropagatorInterceptor)
-@WebSocketGateway()
-export class EventsGateway {
+export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   private logger: Logger = new Logger('ChatGateway');
 

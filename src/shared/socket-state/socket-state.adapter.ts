@@ -25,10 +25,11 @@ export class SocketStateAdapter extends IoAdapter implements WebSocketAdapter {
   /**
    * Create an instance of a WebSocket server with port and additional configurations
    * @param port port number of WebSocket server
-   * @param options additional options to cinfigure the instance
+   * @param options additional options to cinfigure the instance (eg. namespace)
    */
   public create(port: number, options: socketio.ServerOptions = {}): socketio.Server {
-    const server = super.createIOServer(port, options);
+
+    const server = super.create(port, options);
     this.redisPropagatorService.injectSocketServer(server);
 
     // set up of a middleware for authentication
