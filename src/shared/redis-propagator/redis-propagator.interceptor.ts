@@ -30,7 +30,7 @@ export class RedisPropagatorInterceptor<T> implements NestInterceptor<T, WsRespo
         this.redisPropagatorService.propagateEvent({
           ...data,
           socketId: socket.id,
-          userId: socket.auth?.userId,
+          userId: socket.auth?.userId ?? '1234',
         });
       }),
     );
