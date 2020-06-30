@@ -10,10 +10,10 @@ import { RedisPropagatorInterceptor } from './shared/redis-propagator/redis-prop
 @UseInterceptors(RedisPropagatorInterceptor)
 export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
-  private logger: Logger = new Logger('ChatGateway');
+  private logger: Logger = new Logger('Test Gateway');
 
   afterInit(server: Server) {
-    this.logger.log('Init ChatGateway');
+    this.logger.log('Init Test Gateway');
   }
 
   handleConnection(client: Socket, ...args: any[]) {
