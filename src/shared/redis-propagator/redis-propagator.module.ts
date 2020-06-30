@@ -16,7 +16,6 @@ import { RedisModule } from '../redis/redis.module';
  *  3. Emit to specific user
  */
 @Module({
-  imports: [RedisModule],
   providers: [RedisPropagatorService],
   exports: [RedisPropagatorService],
 })
