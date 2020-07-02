@@ -18,8 +18,8 @@ const JOINED_ROOM = 'joinedRoom';
 const LEAVE_ROOM = 'leaveRoom';
 const LEFT_ROOM = 'leftRoom';
 
-@WebSocketGateway({ namespace: '/chat' })
 @UseInterceptors(RedisPropagatorInterceptor)
+@WebSocketGateway({ namespace: '/chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() wss: Server;

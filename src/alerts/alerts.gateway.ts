@@ -4,8 +4,8 @@ import { UseInterceptors } from '@nestjs/common';
 
 import { RedisPropagatorInterceptor } from '../shared/redis-propagator/redis-propagator.interceptor';
 
-@WebSocketGateway({ namespace: '/alert' })
 @UseInterceptors(RedisPropagatorInterceptor)
+@WebSocketGateway({ namespace: '/alert' })
 export class AlertsGateway {
 
   @WebSocketServer() wss: Server;
