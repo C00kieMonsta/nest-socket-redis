@@ -13,4 +13,11 @@ export class AlertsController {
         return dto;
     }
 
+    @Post('room')
+    @HttpCode(200)
+    createAlertToAllInRoom(@Body() dto: { message: string }) {
+        this.alertGateway.sendToAllInRoom(dto.message);
+        return dto;
+    }
+
 }

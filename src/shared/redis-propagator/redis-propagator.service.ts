@@ -12,6 +12,7 @@ import {
 
 interface RedisSocketEventEmit {
   readonly event: string;
+  readonly room?: string;
   readonly data: any;
 }
 
@@ -102,17 +103,24 @@ export class RedisPropagatorService {
    * authenticated or not
    */
   private consumeEmitToAllEvent = (eventInfo: RedisSocketEventEmit): void => {
-    this.socketServer.emit(eventInfo.event, eventInfo.data);
+    const { event, data, room } = eventInfo;
+    if (room) {
+      this.socketServer.to(room).emit(event, data);
+    } else {
+      this.socketServer.emit(event, data);
+    }
   }
 
   /**
    * After getting all the authenticated sockets we use the emit method of the socket to send the event
    */
   private consumeEmitToAuthenticatedEvent = (eventInfo: RedisSocketEventEmit): void => {
-    const { event, data } = eventInfo;
-    return this.socketStateService
-      .getAllSockets()
-      .forEach((socket) => socket.emit(event, data));
+    const { event, data, room } = eventInfo;
+    if (room) {
+      this.socketStateService.getAllSockets().forEach((socket) => socket.to(room).emit(event, data));
+    } else {
+      this.socketStateService.getAllSockets().forEach((socket) => socket.emit(event, data));
+    }
   }
 
 }
