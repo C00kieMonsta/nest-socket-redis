@@ -13,3 +13,5 @@ Whenever using a stateless back-end and using WebSockets for real-time communica
 The idea of stateless application is thougher to setup but easier to maintain. It also makes the scaling up way easier when containerizing your application on hundreds of containers that can be easily disposed.
 
 Redis will support in managing and keeping track of open connections (WebSockt connections).
+
+![fb-websocket-flow](https://user-images.githubusercontent.com/22135261/114315842-184e7680-9b01-11eb-95f9-a0d3cb6d6aa5.png)
